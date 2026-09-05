@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BusCare AI - SBSTC Grievance Management</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">🚌</div>
+      <div>
+        <h1>BusCare AI</h1>
+        <p data-i18n="tagline">Grievance classification & priority routing for SBSTC</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <div class="role-switch">
+        <button id="passengerRole" class="active" data-i18n="navPassenger">Passenger</button>
+        <button id="staffRole" data-i18n="navStaff">SBSTC Staff</button>
+      </div>
+      <select id="languageSelect" aria-label="Language">
+        <option value="en">EN</option>
+        <option value="hi">हिं</option>
+        <option value="bn">বাং</option>
+      </select>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="passengerView">
+      <div class="tabs">
+        <button id="submitTab" class="tab active" data-i18n="tabSubmit">Submit a complaint</button>
+        <button id="trackTab" class="tab" data-i18n="tabTrack">Track status</button>
+      </div>
+
+      <div id="submitPanel" class="panel-grid">
+        <section class="card form-card">
+          <div class="card-accent"></div>
+          <h2>📝 <span data-i18n="submitTitle">Submit a complaint</span></h2>
+          <div class="field-grid">
+            <label><span data-i18n="formName">Your name (optional)</span>
+              <input id="name" type="text" /></label>
+            <label><span data-i18n="formPhone">Phone number (optional, for tracking)</span>
+              <input id="phone" type="tel" /></label>
+          </div>
+          <div class="field-grid">
+            <label><span data-i18n="formBus">Bus number (if known)</span>
+              <input id="busNumber" type="text" placeholder="e.g. WB39 1234" /></label>
+            <label><span data-i18n="formRoute">Route (From → To)</span>
+              <input id="route" type="text" placeholder="e.g. Durgapur → Kolkata" /></label>
+          </div>
+          <label>
+            <span data-i18n="formText">Describe the problem</span>
+            <textarea id="complaintText" rows="6" data-i18n-placeholder="formTextPlaceholder"
+              placeholder="e.g. My bus from Durgapur to Kolkata is 2 hours late and no one is giving information."></textarea>
+          </label>
+          <button id="submitComplaint" class="primary-btn">✈️ <span data-i18n="submitBtn">Submit complaint</span></button>
+          <div id="formError" class="error hidden"></div>
+        </section>
+
+        <section class="card result-card">
+          <div id="howItWorks">
+            <h2 data-i18n="howTitle">How it works</h2>
+            <ol class="steps">
+              <li><span>1</span><div data-i18n="how1">Report the issue</div></li>
+              <li><span>2</span><div data-i18n="how2">AI reads & classifies</div></li>
+              <li><span>3</span><div data-i18n="how3">Routed automatically</div></li>
+              <li><span>4</span><div data-i18n="how4">Department resolves it</div></li>
+            </ol>
+            <div class="demo-tip">
+              <strong>Demo tip:</strong> Try “My bus is 2 hours late” or “Driver is driving dangerously”.
+            </div>
+          </div>
+          <div id="loadingState" class="loading hidden">🤖 <span data-i18n="analyzing">AI is reading your complaint…</span></div>
+          <div id="resultState" class="hidden"></div>
+        </section>
+      </div>
+
+      <section id="trackPanel" class="hidden">
+        <div class="card track-card">
+          <h2>🔎 <span data-i18n="trackTitle">Track your complaint</span></h2>
+          <div class="track-row">
+            <input id="trackQuery" type="text" data-i18n-placeholder="trackPlaceholder" placeholder="Enter Complaint ID or phone number" />
+            <button id="trackBtn" class="primary-btn" data-i18n="trackBtn">Track</button>
+          </div>
+          <div id="trackResult"></div>
+        </div>
+      </section>
+    </section>
+
+    <section id="staffView" class="hidden">
+      <div class="staff-header">
+        <div>
+          <h2 data-i18n="staffTitle">Grievance dashboard</h2>
+          <p class="muted">Monitor complaints, priorities and department workload.</p>
+        </div>
+        <button id="refreshStaff" class="secondary-btn">↻ <span data-i18n="refresh">Refresh</span></button>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card"><b id="statTotal">0</b><span data-i18n="staffTotal">Total complaints</span></div>
+        <div class="stat-card"><b id="statOpen">0</b><span data-i18n="staffOpen">Open</span></div>
+        <div class="stat-card"><b id="statProgress">0</b><span data-i18n="staffProgress">In progress</span></div>
+        <div class="stat-card"><b id="statResolved">0</b><span data-i18n="staffResolved">Resolved</span></div>
+        <div class="stat-card urgent"><b id="statUrgent">0</b><span data-i18n="staffUrgent">High / Critical</span></div>
+      </div>
+
+      <div class="card chart-card">
+        <h3 data-i18n="chartTitle">Complaints by category</h3>
+        <div id="categoryChart" class="bar-chart"></div>
+      </div>
+
+      <div class="filters">
+        <select id="filterDept"><option value="All">Department: All</option></select>
+        <select id="filterPriority"><option value="All">Priority: All</option></select>
+        <select id="filterStatus"><option value="All">Status: All</option></select>
+      </div>
+
+      <div class="card table-card">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th data-i18n="tableId">ID</th>
+                <th data-i18n="tableRoute">Route / Bus</th>
+                <th data-i18n="tableCategory">Category</th>
+                <th data-i18n="tablePriority">Priority</th>
+                <th data-i18n="tableDept">Department</th>
+                <th data-i18n="tableStatus">Status</th>
+                <th data-i18n="tableDate">Received</th>
+              </tr>
+            </thead>
+            <tbody id="complaintTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>BusCare AI • SBSTC grievance prototype</span>
+    <span data-i18n="sharedNote">Demo data is stored locally in this browser for this prototype.</span>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
