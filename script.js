@@ -35,16 +35,16 @@ const STRINGS = {
   en: {
     tagline: "Grievance classification & priority routing for SBSTC",
     navPassenger: "Passenger",
-    navStaff: "SBSTC Staff",
+    navStaff: "Staff",
 
     tabSubmit: "Submit a complaint",
     tabTrack: "Track status",
 
     submitTitle: "Submit a complaint",
 
-    formName: "Your name (optional)",
-    formPhone: "Phone number (optional, for tracking)",
-    formBus: "Bus number (if known)",
+    formName: "Your name ",
+    formPhone: "Phone number",
+    formBus: "Bus number",
     formRoute: "Route (From → To)",
     formText: "Describe the problem",
 
